@@ -6,30 +6,19 @@ import { signUp } from "@/services/auth";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { 
-  User, 
-  Mail, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  ArrowRight, 
-  Check 
-} from "lucide-react";
 
-// --- VALIDATION SCHEMA ---
 const schema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
+  name: z.string().min(2, "Name is required"),
   email: z.string().email("Enter a valid email address"),
   password: z
     .string()
     .min(8, "Min 8 characters")
-    .regex(/[A-Z]/, "1 uppercase letter")
-    .regex(/[a-z]/, "1 lowercase letter")
-    .regex(/[0-9]/, "1 number")
-    .regex(/[^A-Za-z0-9]/, "1 special char"),
+    .regex(/[A-Z]/, "Include 1 uppercase")
+    .regex(/[a-z]/, "Include 1 lowercase")
+    .regex(/[0-9]/, "Include 1 number")
+    .regex(/[^A-Za-z0-9]/, "Include 1 special char"),
 });
 
-// --- PASSWORD REQUIREMENTS LIST ---
 const PASS_REQS = [
   { label: "8+ chars", regex: /.{8,}/ },
   { label: "Uppercase", regex: /[A-Z]/ },
@@ -41,10 +30,8 @@ const PASS_REQS = [
 const SignUpForm = ({ cardRef }) => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 1. Protection: If user is already logged in, redirect
   useEffect(() => {
     if (isAuthenticated) {
       navigate("/", { replace: true });
@@ -59,7 +46,7 @@ const SignUpForm = ({ cardRef }) => {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
-    mode: "onChange", 
+    mode: "onChange",
   });
 
   const passwordValue = watch("password") || "";
@@ -68,144 +55,104 @@ const SignUpForm = ({ cardRef }) => {
     setIsSubmitting(true);
     try {
       await signUp(data);
-      toast.success("Account created! Please log in.");
+      toast.success("Account created!");
       reset();
       navigate("/login");
     } catch (error) {
-      const message = error.response?.data?.message || "Sign up failed. Try again.";
-      toast.error(message);
-      console.error("Signup Error:", error);
+      toast.error(error.response?.data?.message || "Sign up failed.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    // ✨ CHANGED: Removed the outer 'min-h-screen bg-[#0a0a0a]' wrapper.
-    // Now returning ONLY the card, allowing the parent (SignUp.jsx) to handle layout.
-    <div
-      ref={cardRef}
-      className="relative w-full max-w-md overflow-hidden rounded-3xl bg-white/[0.06] backdrop-blur-xl border border-white/10 shadow-2xl"
-    >
-      {/* Header Gradient Accent */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
-
-      <div className="p-8 md:p-10">
-        <div className="mb-8">
-          <h2 className="text-3xl font-heading tracking-tight text-white">
-            Get Started
+    <div className="flex items-center justify-center bg-white min-h-screen px-6">
+      <div ref={cardRef} className="w-full max-w-[400px] py-12">
+        
+        {/* HEADER - Editorial Bold */}
+        <div className="mb-12">
+          <h2 className="text-5xl font-bold tracking-tighter text-black leading-none">
+            Join.
           </h2>
-          <p className="mt-2 text-sm text-white/40">
-            Create your account to unlock full access.
+          <p className="mt-4 text-[10px] uppercase tracking-[0.3em] font-bold text-black/40">
+            Create Personal Studio — 2026
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(submitHandler)} className="space-y-5">
+        <form onSubmit={handleSubmit(submitHandler)} className="space-y-10">
           
-          {/* NAME INPUT */}
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Full Name</label>
-            <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/30 group-focus-within:text-blue-400 transition-colors">
-                <User size={18} />
-              </div>
-              <input
-                {...register("name")}
-                placeholder="John Doe"
-                className="block w-full rounded-xl border border-white/10 bg-white/5 pl-11 pr-4 py-3 text-sm text-white placeholder-white/30 focus:border-blue-500 focus:bg-white/10 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none"
-              />
-            </div>
-            {errors.name && <p className="text-xs text-red-500 font-medium ml-1">{errors.name.message}</p>}
+          {/* NAME */}
+          <div className="group flex flex-col gap-2">
+            <label className="text-[10px] uppercase tracking-widest font-bold text-black/30 group-focus-within:text-black transition-colors">
+              Full Name
+            </label>
+            <input
+              {...register("name")}
+              placeholder="Your Name"
+              className="w-full border-b border-black/10 bg-transparent py-3 text-sm text-black placeholder:text-black/10 focus:border-black outline-none transition-all"
+            />
+            {errors.name && <p className="text-[10px] font-bold text-red-500 uppercase">{errors.name.message}</p>}
           </div>
 
-          {/* EMAIL INPUT */}
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Email Address</label>
-            <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/30 group-focus-within:text-blue-400 transition-colors">
-                <Mail size={18} />
-              </div>
-              <input
-                {...register("email")}
-                placeholder="you@example.com"
-                className="block w-full rounded-xl border border-white/10 bg-white/5 pl-11 pr-4 py-3 text-sm text-white placeholder-white/30 focus:border-blue-500 focus:bg-white/10 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none"
-              />
-            </div>
-            {errors.email && <p className="text-xs text-red-500 font-medium ml-1">{errors.email.message}</p>}
+          {/* EMAIL */}
+          <div className="group flex flex-col gap-2">
+            <label className="text-[10px] uppercase tracking-widest font-bold text-black/30 group-focus-within:text-black transition-colors">
+              Email Address
+            </label>
+            <input
+              {...register("email")}
+              placeholder="you@creativ.com"
+              className="w-full border-b border-black/10 bg-transparent py-3 text-sm text-black placeholder:text-black/10 focus:border-black outline-none transition-all"
+            />
+            {errors.email && <p className="text-[10px] font-bold text-red-500 uppercase">{errors.email.message}</p>}
           </div>
 
-          {/* PASSWORD INPUT */}
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Password</label>
-            <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/30 group-focus-within:text-blue-400 transition-colors">
-                <Lock size={18} />
-              </div>
-              <input
-                type={showPassword ? "text" : "password"}
-                {...register("password")}
-                placeholder="Create a strong password"
-                className="block w-full rounded-xl border border-white/10 bg-white/5 pl-11 pr-12 py-3 text-sm text-white placeholder-white/30 focus:border-blue-500 focus:bg-white/10 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-white/30 hover:text-white/60 transition-colors"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
+          {/* PASSWORD */}
+          <div className="group flex flex-col gap-2">
+            <label className="text-[10px] uppercase tracking-widest font-bold text-black/30 group-focus-within:text-black transition-colors">
+              Secure Password
+            </label>
+            <input
+              type="password"
+              {...register("password")}
+              placeholder="••••••••"
+              className="w-full border-b border-black/10 bg-transparent py-3 text-sm text-black placeholder:text-black/10 focus:border-black outline-none transition-all"
+            />
           </div>
 
-          {/* LIVE PASSWORD STRENGTH METER */}
-          <div className="bg-white/5 rounded-xl p-4 grid grid-cols-2 gap-y-2 gap-x-4 border border-white/10">
-             {PASS_REQS.map((req, index) => {
-               const isValid = req.regex.test(passwordValue);
-               return (
-                 <div key={index} className="flex items-center gap-2">
-                    <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 transition-all ${isValid ? "bg-green-100" : "bg-gray-200"}`}>
-                        {isValid ? (
-                           <Check size={10} className="text-green-600" strokeWidth={4} />
-                        ) : (
-                           <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
-                        )}
-                    </div>
-                    <span className={`text-[11px] font-bold transition-colors ${isValid ? "text-green-700" : "text-gray-400"}`}>
-                      {req.label}
-                    </span>
-                 </div>
-               )
-             })}
+          {/* MINIMAL STRENGTH METER */}
+          <div className="grid grid-cols-2 gap-y-3 gap-x-6 pt-2">
+            {PASS_REQS.map((req, index) => {
+              const isValid = req.regex.test(passwordValue);
+              return (
+                <div key={index} className="flex items-center gap-3">
+                  <div className={`w-1 h-1 rounded-full ${isValid ? "bg-black" : "bg-black/10"}`} />
+                  <span className={`text-[9px] uppercase tracking-widest font-bold transition-colors ${isValid ? "text-black" : "text-black/20"}`}>
+                    {req.label}
+                  </span>
+                </div>
+              );
+            })}
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="group relative w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:brightness-110 transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-xl active:scale-[0.98]"
+            className="w-full rounded-full bg-black py-5 text-[10px] uppercase tracking-[0.3em] font-bold text-white hover:bg-neutral-800 transition-all active:scale-[0.98] disabled:opacity-50"
           >
-            {isSubmitting ? (
-              <span className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                Verifying...
-              </span>
-            ) : (
-              <>
-                Create Account
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-              </>
-            )}
+            {isSubmitting ? "Initialising..." : "Create Account —"}
           </button>
         </form>
 
-        <p className="mt-8 text-center text-sm text-white/40 font-medium">
-          Already have an account?{" "}
+        <div className="mt-12 pt-8 border-t border-black/5 flex justify-between items-center">
+          <p className="text-[10px] uppercase tracking-widest text-black/40 font-bold">Member?</p>
           <button 
-             onClick={() => navigate("/login")} 
-             className="text-blue-400 hover:text-blue-300 font-bold underline-offset-4 hover:underline transition-all"
+            onClick={() => navigate("/login")} 
+            className="text-[10px] uppercase tracking-widest font-bold text-black hover:underline"
           >
-            Sign in
+            Sign In
           </button>
-        </p>
+        </div>
       </div>
     </div>
   );

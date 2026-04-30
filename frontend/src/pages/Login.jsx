@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import LoginForm from "@/components/auth/LoginForm";
-import AuthHero from "@/components/auth/AuthHero";
 import { useFormAnimation } from "@/hooks/useFormAnimation";
+import Marque from "../components/nav/Marque";
 
 export default function Login() {
   const pageRef = useRef(null);
@@ -14,8 +14,8 @@ export default function Login() {
   });
 
   return (
-    <div ref={pageRef} className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
-      <AuthHero />
+    <div ref={pageRef} className="min-h-screen  lg:grid-cols-2">
+       <Marque />
       <LoginForm cardRef={cardRef} />
     </div>
   );

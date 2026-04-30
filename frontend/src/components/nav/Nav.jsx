@@ -1,33 +1,31 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { Sparkles, Image as ImageIcon, LogOut, Menu, X, Info, BarChart } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import gsap from "gsap";
 
 export default function Nav() {
   const navigate = useNavigate();
   const { isAuthenticated, name: userName, logout } = useAuth();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const menuLinksRef = useRef(null);
-  useEffect(() => {
-  if (isMenuOpen) {
-    document.body.style.overflow = 'hidden';
-  } else {
-    document.body.style.overflow = 'unset';
-  }
-  return () => { document.body.style.overflow = 'unset'; };
-}, [isMenuOpen]);
 
-  // GSAP staggered links on menu open
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navRef = useRef(null);
+
+  // 🔒 LOCK SCROLL WHEN MENU OPEN
   useEffect(() => {
-    if (isMenuOpen && menuLinksRef.current) {
-      gsap.fromTo(
-        menuLinksRef.current.querySelectorAll(".mobile-link"),
-        { y: 40, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6, stagger: 0.08, ease: "power3.out", delay: 0.2 }
-      );
-    }
+    document.body.style.overflow = isMenuOpen ? "hidden" : "auto";
+    return () => (document.body.style.overflow = "auto");
   }, [isMenuOpen]);
+
+  // 🎬 NAV ANIMATION (scoped, safe)
+  useEffect(() => {
+    gsap.fromTo(
+      navRef.current,
+      { y: -40, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.7, ease: "power3.out" }
+    );
+  }, []);
+
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -35,158 +33,132 @@ export default function Nav() {
   };
 
   return (
-    <nav className="hero-fade absolute top-0 left-0 w-full p-6 md:p-8 flex items-center justify-between text-white mix-blend-difference z-[100] font-sans">
-      {/* BRAND */}
-      <Link to="/" className="flex items-center space-x-2 group">
-        <div className="text-2xl font-bold tracking-tighter">Creatdiv.</div>
-      </Link>
-
-      {/* CENTER LINKS - Desktop Only */}
-      {isAuthenticated && (
-        <div className="hidden md:flex items-center gap-6 bg-white/5 backdrop-blur-xl px-6 py-2 rounded-full border border-white/10 ring-1 ring-white/5 shadow-2xl">
-          <Link
-            to="/content"
-            className="text-sm font-semibold flex items-center gap-2 hover:text-blue-400 transition-colors"
-          >
-            <Sparkles size={14} /> Content
-          </Link>
-          <div className="w-px h-4 bg-white/20" />
-          <Link
-            to="/image"
-            className="text-sm font-semibold flex items-center gap-2 hover:text-purple-400 transition-colors"
-          >
-            <ImageIcon size={14} /> Image
-          </Link>
-          <Link
-            to="/resume/analyze"
-            className="text-sm font-semibold flex items-center gap-2 hover:text-blue-400 transition-colors"
-          >
-            <BarChart size={14} /> Rate your Resume
-          </Link>
-          
-        </div>
-      )}
-
-      {/* RIGHT SIDE */}
-      <div className="flex items-center gap-4">
-        {isAuthenticated ? (
-          <div className="flex items-center gap-3 md:gap-5">
-            <div className="hidden sm:flex flex-col items-end leading-none">
-              <span className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-1">
-                Welcome
-              </span>
-              <span className="text-sm font-bold">{userName}</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center border border-white/20 shadow-lg ring-2 ring-black">
-                <span className="text-sm font-bold text-white">
-                  {userName?.charAt(0).toUpperCase()}
-                </span>
-              </div>
-
-              <button
-                onClick={handleLogout}
-                className="hidden md:block p-2.5 hover:bg-white/10 rounded-full transition-colors text-white/70 hover:text-white"
-                title="Logout"
-              >
-                <LogOut size={18} />
-              </button>
-
-              {/* 🍔 BURGER BUTTON - Mobile Only */}
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="md:hidden p-2 text-white transition-all active:scale-90"
-              >
-                {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="flex items-center gap-4">
-            <Link
-              to="/login"
-              className="text-sm font-bold hover:text-white/70 transition"
-            >
-              Login
-            </Link>
-            <Link
-              to="/register"
-              className="px-6 py-2 text-sm font-bold text-black bg-white rounded-full shadow-xl"
-            >
-              Sign Up
-            </Link>
-          </div>
-        )}
-      </div>
-      {/* 📱 MOBILE OVERLAY MENU */}
-      <div
-        className={`fixed inset-0 w-full h-screen z-[1000] transition-all duration-500 ease-in-out ${
-          isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
-        }`}
+    <>
+      {/* NAVBAR */}
+      <nav
+        ref={navRef}
+        className="fixed top-0 left-0 w-full z-999 px-4 py-4 md:py-2 bg-white/90 backdrop-blur-md border-b border-black/5"
       >
-        {/* 1. COMPLETELY SOLID BACKGROUND */}
-        <div className="absolute inset-0 bg-[#060a13]">
-          {/* Dotted Pattern */}
-          <div
-            className="absolute inset-0 opacity-[0.08]"
-            style={{
-              backgroundImage: "radial-gradient(#ffffff 1px, transparent 1px)",
-              backgroundSize: "24px 24px",
-            }}
-          />
-        </div>
-
-        {/* 2. MENU CONTENT CONTAINER */}
-        <div className="relative h-full flex flex-col items-center justify-center p-8">
-          {/* BRAND - Adding it back in the menu for orientation */}
-          <div className="absolute top-10 left-10 text-xl font-bold tracking-tighter text-white">
-            Creatdiv.
+        <div className="max-w-600 mx-auto flex items-center justify-between">
+          
+          {/* LEFT */}
+          <div className="w-1/3">
+            <Link to="/" className="font-semibold  text-black   text-xl md:text-2xl tracking-tight">
+              Creatdiv.
+            </Link>
           </div>
 
-          <button
-            onClick={() => setIsMenuOpen(false)}
-            className="absolute top-8 right-8 p-3 text-white bg-white/10 rounded-full active:scale-90 transition-all border border-white/10"
-          >
-            <X size={28} />
-          </button>
-
-          <div ref={menuLinksRef} className="flex flex-col items-center gap-10 text-center">
-            {[
-              { name: "Home", path: "/" },
-              { name: "Content Engine", path: "/content" },
-              { name: "Image Studio", path: "/image" },
-              { name: "History", path: "/history" },
-            ].map((link, index) => (
-              <Link
-                key={index}
-                to={link.path}
-                onClick={() => setIsMenuOpen(false)}
-                className="mobile-link text-4xl font-black tracking-tighter text-white active:text-purple-400 transition-colors"
-              >
-                {link.name}
-              </Link>
-            ))}
-
+          {/* CENTER */}
+          <div className="w-1/3 hidden md:flex justify-center gap-8">
             {isAuthenticated && (
-              <div className="mt-6 flex flex-col items-center gap-6">
-                <div className="h-[2px] w-8 bg-white/10" />
-                <button
-                  onClick={handleLogout}
-                  className="mobile-link flex items-center gap-2 text-red-400 text-lg font-bold"
-                >
-                  <LogOut size={20} /> Logout
-                </button>
-              </div>
+              <>
+                <Link to="/image" className="text-sm text-black/50 hover:text-black transition">
+                  Image
+                </Link>
+                <Link to="/content" className="text-sm text-black/50 hover:text-black transition">
+                  Rewrite
+                </Link>
+                <Link to="/resume/analyze" className="text-sm text-black/50 hover:text-black transition">
+                  Resume
+                </Link>
+              </>
             )}
           </div>
 
-          {/* BOTTOM INFO */}
-          <div className="absolute bottom-10 text-white/10 text-[10px] font-bold uppercase tracking-[0.4em]">
-            Built with Creatdiv AI
+          {/* RIGHT */}
+          <div className="w-1/3 flex justify-end items-center gap-6">
+            {isAuthenticated ? (
+              <>
+                <span className="hidden sm:block text-xs uppercase tracking-widest text-black/40">
+                  {userName}
+                </span>
+
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 border border-black/10 rounded-full text-xs hover:bg-black hover:text-white transition"
+                >
+                  Logout
+                </button>
+
+                {/* MOBILE MENU BTN */}
+                <button
+                  onClick={() => setIsMenuOpen(true)}
+                  className="md:hidden"
+                >
+                  <Menu size={24} />
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="text-xs uppercase text-black/60 hover:text-black">
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  className="px-4 py-2 bg-black text-white rounded-full text-xs"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      </nav>
+
+      {/* 📱 MOBILE MENU (FIXED VERSION) */}
+      <div
+        className={`fixed inset-0 z-1000 bg-white transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]
+        ${isMenuOpen ? "translate-y-0" : "-translate-y-full"}`}
+      >
+        <div className="h-full flex flex-col p-8">
+
+          {/* TOP BAR */}
+          <div className="flex justify-between items-center">
+            <span className="font-bold text-xl">Creatdiv.</span>
+
+            <button onClick={() => setIsMenuOpen(false)}>
+              <X size={30} />
+            </button>
+          </div>
+
+          {/* LINKS */}
+          <div className="flex  text-black flex-col justify-center flex-grow gap-10">
+            <Link
+              to="/image"
+              onClick={() => setIsMenuOpen(false)}
+              className="text-5xl font-bold tracking-tight"
+            >
+              Image
+            </Link>
+
+            <Link
+              to="/content"
+              onClick={() => setIsMenuOpen(false)}
+              className="text-5xl font-bold tracking-tight"
+            >
+              Content
+            </Link>
+
+            <Link
+              to="/resume/analyze"
+              onClick={() => setIsMenuOpen(false)}
+              className="text-5xl font-bold tracking-tight"
+            >
+              Resume
+            </Link>
+          </div>
+
+          {/* FOOTER */}
+          <div className="pb-8">
+            <button
+              onClick={handleLogout}
+              className="text-sm uppercase tracking-widest text-red-500"
+            >
+              Sign Out
+            </button>
           </div>
         </div>
       </div>
-    </nav>
+    </>
   );
 }

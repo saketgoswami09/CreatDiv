@@ -6,7 +6,6 @@ import { signIn } from "@/services/auth";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -15,10 +14,7 @@ const schema = z.object({
 
 const LoginForm = ({ cardRef }) => {
   const navigate = useNavigate();
-  // ✅ Fixed: Added parentheses to call the hook
   const { login, isAuthenticated } = useAuth();
-
-  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -29,136 +25,103 @@ const LoginForm = ({ cardRef }) => {
   } = useForm({
     resolver: zodResolver(schema),
   });
+
   useEffect(() => {
     if (isAuthenticated) {
       navigate("/", { replace: true });
     }
   }, [isAuthenticated, navigate]);
+
   const submitHandler = async (data) => {
     setIsSubmitting(true);
     try {
       const res = await signIn(data);
-
-      const token = res.data.token;
-      const userName = res.data.user.name;
-
-      // ✅ Global State update
-      login(token, userName);
-
-      toast.success(`Welcome back, ${userName}!`);
+      const { token, user } = res.data;
+      login(token, user.name);
+      toast.success(`Welcome back, ${user.name}!`);
       reset();
       navigate("/");
     } catch (error) {
-      const message =
-        error.response?.data?.message ?? "Invalid email or password.";
-      toast.error(message);
+      toast.error(error.response?.data?.message ?? "Invalid email or password.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center bg-[#060a13] px-4 min-h-screen relative overflow-hidden">
-      {/* Optional: Background logic matches your theme */}
-      <div
-        className="absolute inset-0 opacity-10"
-        style={{
-          backgroundImage: "radial-gradient(#ffffff 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-        }}
-      ></div>
-
+    <div className="flex items-center justify-center bg-white min-h-screen px-6">
       <div
         ref={cardRef}
-        className="relative w-full max-w-md rounded-3xl bg-white/[0.06] backdrop-blur-xl border border-white/10 p-8 md:p-10 shadow-2xl"
+        className="w-full max-w-100 py-12"
       >
-        <div className="mb-8">
-          <h2 className="text-3xl font-heading tracking-tight text-white">
-            Welcome back
+        {/* HEADER - Matches Hero Typography */}
+        <div className="mb-12">
+          <h2 className="text-5xl font-bold tracking-tighter text-black leading-none">
+            Login.
           </h2>
-          <p className="mt-2 text-white/40">
-            Sign in to continue your creative journey.
+          <p className="mt-4 text-xs uppercase tracking-[0.2em] text-black/40 font-bold">
+            Personal Studio Access — 2026
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
+        <form onSubmit={handleSubmit(submitHandler)} className="space-y-8">
           {/* EMAIL */}
-          <div className="space-y-1">
-            <label className="text-sm font-semibold text-white/60 ml-1">
-              Email
+          <div className="group flex flex-col gap-2">
+            <label className="text-[10px] uppercase tracking-widest font-bold text-black/40 group-focus-within:text-black transition-colors">
+              Email Address
             </label>
-            <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-white/30 group-focus-within:text-blue-400 transition-colors">
-                <Mail size={18} />
-              </div>
-              <input
-                {...register("email")}
-                placeholder="you@example.com"
-                className="w-full rounded-xl border border-white/10 bg-white/5 pl-11 pr-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-blue-500 focus:bg-white/10 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none"
-              />
-            </div>
+            <input
+              {...register("email")}
+              placeholder="you@creativ.com"
+              className="w-full border-b border-black/10 bg-transparent py-3 text-sm text-black placeholder:text-black/20 focus:border-black outline-none transition-all"
+            />
             {errors.email && (
-              <p className="text-xs text-red-500 ml-1">
+              <p className="text-[10px] font-bold uppercase text-red-500 tracking-tighter">
                 {errors.email.message}
               </p>
             )}
           </div>
 
           {/* PASSWORD */}
-          <div className="space-y-1">
-            <label className="text-sm font-semibold text-white/60 ml-1">
+          <div className="group flex flex-col gap-2">
+            <label className="text-[10px] uppercase tracking-widest font-bold text-black/40 group-focus-within:text-black transition-colors">
               Password
             </label>
-            <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-white/30 group-focus-within:text-blue-400 transition-colors">
-                <Lock size={18} />
-              </div>
-              <input
-                type={showPassword ? "text" : "password"}
-                {...register("password")}
-                placeholder="••••••••"
-                className="w-full rounded-xl border border-white/10 bg-white/5 pl-11 pr-12 py-3 text-sm text-white placeholder:text-white/30 focus:border-blue-500 focus:bg-white/10 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-white/30 hover:text-white/60 transition-colors"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
+            <input
+              type="password"
+              {...register("password")}
+              placeholder="••••••••"
+              className="w-full border-b border-black/10 bg-transparent py-3 text-sm text-black placeholder:text-black/20 focus:border-black outline-none transition-all"
+            />
             {errors.password && (
-              <p className="text-xs text-red-500 ml-1">
+              <p className="text-[10px] font-bold uppercase text-red-500 tracking-tighter">
                 {errors.password.message}
               </p>
             )}
           </div>
 
+          {/* SUBMIT - Matches Navigation Button Style */}
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 py-3.5 text-sm font-bold text-white shadow-lg hover:brightness-110 transition-all active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2"
+            className="w-full rounded-full bg-black py-4 text-xs font-bold uppercase tracking-[0.2em] text-white hover:bg-black/80 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center"
           >
-            {isSubmitting ? (
-              <span className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                Logging in...
-              </span>
-            ) : (
-              "Log in"
-            )}
+            {isSubmitting ? "Authenticating..." : "Enter Studio →"}
           </button>
         </form>
 
-        <p className="mt-8 text-center text-sm text-white/40">
-          New here?{" "}
-          <span
+        {/* FOOTER */}
+        <div className="mt-12 pt-8 border-t border-black/5 flex justify-between items-center">
+          <p className="text-[10px] uppercase tracking-widest text-black/40 font-bold">
+            No Account?
+          </p>
+          <button
             onClick={() => navigate("/register")}
-            className="font-bold text-blue-400 hover:underline cursor-pointer transition-all"
+            className="text-[10px] uppercase tracking-widest font-bold text-black hover:underline"
           >
-            Create an account
-          </span>
-        </p>
+            Register Now
+          </button>
+        </div>
       </div>
     </div>
   );

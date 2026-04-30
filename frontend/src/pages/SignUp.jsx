@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import SignUpForm from "@/components/auth/SignUpForm";
-import AuthHero from "@/components/auth/AuthHero";
 import { useFormAnimation } from "@/hooks/useFormAnimation";
+import Marque from "../components/nav/Marque";
 
 export default function SignUp() {
   const pageRef = useRef(null);
@@ -14,11 +14,10 @@ export default function SignUp() {
   });
 
   return (
-    <div ref={pageRef} className="flex h-screen w-full overflow-hidden bg-[#060a13]">
-      <AuthHero />
-      <div className="w-full lg:w-1/2 h-full flex items-center justify-center p-6 overflow-y-auto">
-        <SignUpForm cardRef={cardRef} />
-      </div>
+    <div>
+       <Marque />
+      <SignUpForm cardRef={cardRef} />
+     
     </div>
   );
 }

@@ -27,3 +27,16 @@ html {
   background-color: rgba(139, 92, 246, 0.3);
   color: #ffffff;
 }
+
+@import "tailwindcss";
+
+@theme {
+  /* Defining the animation */
+  --animate-marquee: marquee 25s linear infinite;
+
+  /* Defining the keyframes */
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(50%); }
+  }
+}
