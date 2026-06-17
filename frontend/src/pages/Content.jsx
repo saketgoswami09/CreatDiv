@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom"; // Updated import
+import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Card from "../components/Card";
@@ -70,7 +70,6 @@ const contentFeatures = [
 
 export default function Content() {
   const pageRef = useRef(null);
-  const navigate = useNavigate(); // Added navigate hook
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -132,49 +131,41 @@ export default function Content() {
   return (
     <div
       ref={pageRef}
-      // Exact Creatdiv background color mapping
-      className="min-h-screen bg-[#0A0D14] text-slate-200 relative overflow-hidden font-sans"
+      className="min-h-screen bg-[#060a13] text-white relative overflow-hidden"
     >
-      {/* Premium subtle background glow */}
-      <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-[#4F46E5]/10 rounded-full blur-[120px] -z-0 pointer-events-none" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#4F46E5]/5 rounded-full blur-[150px] -z-0 pointer-events-none" />
+      {/* Background glow */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[150px] -z-0 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-600/8 rounded-full blur-[150px] -z-0 pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-16 md:py-24">
-        
-        {/* ── NEW: BACK NAVIGATION WITH MICRO-INTERACTION ── */}
-        <button
-          onClick={() => navigate(-1)}
-          className="group flex items-center gap-2 text-[13px] font-semibold text-slate-500 hover:text-white transition-colors focus:outline-none mb-12 cursor-pointer"
+        {/* Back link */}
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-sm font-medium text-white/40 hover:text-white/70 transition-colors mb-12"
         >
-          <div className="flex items-center justify-center p-1.5 rounded-lg border border-transparent group-hover:border-white/10 group-hover:bg-white/5 transition-all">
-            <ArrowLeft 
-              size={16} 
-              className="transition-transform duration-200 ease-in-out group-hover:-translate-x-0.5" 
-            />
-          </div>
-          <span>Back</span>
-        </button>
+          <ArrowLeft size={16} /> Back to Home
+        </Link>
 
-        {/* ── HEADER ── */}
-        <div className="text-center mb-20 space-y-5">
-          <div className="content-badge inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#4F46E5] text-[11px] font-bold uppercase tracking-wider shadow-sm">
-            <Sparkles size={14} className="fill-[#4F46E5]/20" /> AI Writing Assistant
+        {/* HEADER */}
+        <div className="text-center mb-20 space-y-6">
+          <div className="content-badge inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-indigo-400 text-xs font-bold uppercase tracking-[0.2em]">
+            <Sparkles size={14} /> AI Writing Assistant
           </div>
 
-          <h1 className="content-title text-6xl md:text-7xl font-bold tracking-tight text-white leading-[1.1]">
+          <h1 className="content-title text-6xl md:text-8xl font-black tracking-tighter leading-[0.9]">
             Content <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-[#4F46E5]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-blue-400">
               Engine
             </span>
           </h1>
 
-          <p className="content-subtitle text-slate-400 text-[15px] md:text-lg max-w-2xl mx-auto leading-relaxed font-medium">
+          <p className="content-subtitle text-white/40 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed font-medium">
             Refine, expand, and generate high-performance copy using our suite of{" "}
-            <span className="text-slate-200 font-semibold">advanced neural models</span>.
+            <span className="text-white/70">advanced neural models</span>.
           </p>
         </div>
 
-        {/* ── CARD GRID ── */}
+        {/* CARD GRID */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {contentFeatures.map((feature) => (
             <div key={feature.id} className="content-card">
@@ -183,38 +174,36 @@ export default function Content() {
           ))}
         </div>
 
-        {/* ── FOOTER BANNER ── */}
-        <div className="content-footer-banner mt-24 relative overflow-hidden rounded-[2rem] bg-white/[0.02] backdrop-blur-sm border border-white/10 p-8 md:p-12 shadow-2xl">
-          <div className="absolute top-0 right-0 -m-8 opacity-5">
-            <FileText size={280} className="text-[#4F46E5]" />
+        {/* FOOTER BANNER */}
+        <div className="content-footer-banner mt-24 relative overflow-hidden rounded-[2rem] bg-white/5 backdrop-blur-sm border border-white/10 p-8 md:p-12">
+          <div className="absolute top-0 right-0 -m-12 opacity-5">
+            <FileText size={300} />
           </div>
 
           <div className="relative z-10 grid md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-4">
-              <h2 className="text-3xl font-bold text-white tracking-tight leading-snug">
+            <div>
+              <h2 className="text-3xl font-bold mb-4 text-white">
                 Precision Editing. <br /> Infinite Possibilities.
               </h2>
-              <p className="text-slate-400 text-[15px] leading-relaxed max-w-md">
+              <p className="text-white/40 text-base leading-relaxed">
                 Our content tools don't just replace words; they understand
                 context, intent, and tone to ensure your voice remains authentic
                 while becoming more professional.
               </p>
             </div>
-            
-            {/* Sleek feature tags */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 gap-4">
               {[
-                { label: "Grammar Check", color: "bg-blue-400" },
-                { label: "Plagiarism Safe", color: "bg-[#4F46E5]" },
-                { label: "Tone Control", color: "bg-orange-400" },
-                { label: "Instant Export", color: "bg-emerald-400" },
+                { label: "Grammar Check", color: "bg-blue-500" },
+                { label: "Plagiarism Safe", color: "bg-purple-500" },
+                { label: "Tone Control", color: "bg-orange-500" },
+                { label: "Instant Export", color: "bg-green-500" },
               ].map((tag, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"
+                  className="flex items-center gap-2 bg-white/5 border border-white/10 p-4 rounded-xl"
                 >
-                  <div className={`w-1.5 h-1.5 rounded-full ${tag.color} shadow-[0_0_8px_currentColor]`} />
-                  <span className="text-[13px] font-semibold text-slate-300">
+                  <div className={`w-2 h-2 rounded-full ${tag.color}`} />
+                  <span className="text-sm font-medium text-white/70">
                     {tag.label}
                   </span>
                 </div>
