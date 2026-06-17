@@ -5,14 +5,14 @@ import gsap from "gsap";
 import { analyzeResume } from "@/services/resume";
 import { ResumeResult } from "@/components/ResumeResult";
 import ScanningLoader from "@/components/ui/ScanningLoader";
+import BackButton from "../components/BackButton";
 
 export default function ResumeRater() {
   const [file, setFile] = useState(null);
   const [role, setRole] = useState("Software Developer");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  
-  // 1. Added ref to manage the physical file input element
+
   const fileInputRef = useRef(null);
   const pageRef = useRef(null);
 
@@ -29,7 +29,6 @@ export default function ResumeRater() {
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile?.type !== "application/pdf") {
-      // If invalid, clear the input so they can try again immediately
       if (fileInputRef.current) fileInputRef.current.value = "";
       return toast.error("Please upload a PDF file");
     }
@@ -51,9 +50,10 @@ export default function ResumeRater() {
       setResult(res.data.data);
       toast.success("Analysis complete!");
     } catch (error) {
-      // 3. Improved error logging and fallback message
       console.error("Analysis Error:", error);
-      const msg = error.response?.data?.message || "Analysis failed. Please check your connection.";
+      const msg =
+        error.response?.data?.message ||
+        "Analysis failed. Please check your connection.";
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -63,91 +63,124 @@ export default function ResumeRater() {
   const handleReset = () => {
     setFile(null);
     setResult(null);
-    // 1. Clear the physical file input so the exact same file can be re-uploaded if needed
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
   return (
-    <div ref={pageRef} className="max-w-4xl mx-auto py-12 px-4 min-h-screen">
-      {/* HEADER */}
-      {!loading && (
-        <div className="text-center mb-12">
-          <div className="resume-badge inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-bold mb-4 uppercase tracking-widest">
-            <Sparkles size={14} /> ATS Optimizer
-          </div>
-          <h1 className="resume-title text-4xl font-black text-white tracking-tight">
-            Resume <span className="text-purple-400">Rater</span>
-          </h1>
+    // Applied the exact dark navy background from your screenshot
+    <div
+      ref={pageRef}
+      className="w-full min-h-screen bg-[#0A0D14] py-12 px-4 font-sans"
+    >
+      <div className="max-w-4xl mx-auto p-6">
+        {/* Top Navigation */}
+        <div className="mb-2">
+          <BackButton />
         </div>
-      )}
+      </div>
 
-      {/* LOGIC FLOW */}
-      {result ? (
-        <div className="space-y-6">
-          <ResumeResult result={result} />
-          <button 
-            onClick={handleReset}
-            className="flex items-center gap-2 mx-auto text-sm font-bold text-white/30 hover:text-purple-400 transition-colors"
-          >
-            <RefreshCcw size={16} /> Re-upload another resume
-          </button>
-        </div>
-      ) : loading ? (
-        <div className="animate-in fade-in zoom-in duration-500">
-           <ScanningLoader />
-        </div>
-      ) : (
-        // 2. Converted to a <form> for accessibility and "Enter" key submission
-        <form 
-          onSubmit={(e) => { 
-            e.preventDefault(); 
-            handleAnalyze(); 
-          }} 
-          className="resume-form space-y-6"
-        >
-          <div className="bg-white/[0.04] backdrop-blur-sm rounded-3xl p-6 border border-white/10">
-            <label className="text-xs font-bold text-white/40 uppercase tracking-widest mb-3 block">Target Job Role</label>
-            <input 
-              type="text"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full px-5 py-3 rounded-2xl bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/20 text-white font-medium outline-none transition-all placeholder:text-white/30"
-              placeholder="e.g. Full Stack Developer"
-            />
-          </div>
-
-          <div className="relative group">
-            <input 
-              type="file" 
-              ref={fileInputRef} // <-- Attached ref here
-              onChange={handleFileChange} 
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
-              accept=".pdf"
-            />
-            <div className={`p-12 rounded-[2.5rem] border-2 border-dashed transition-all duration-300 ${
-              file ? "border-purple-500 bg-purple-500/10" : "border-white/10 bg-white/[0.02] group-hover:border-purple-500/30"
-            } flex flex-col items-center justify-center text-center`}>
-              <div className={`size-16 rounded-2xl flex items-center justify-center mb-4 transition-colors ${
-                file ? "bg-purple-600 text-white" : "bg-white/5 text-white/30 group-hover:bg-purple-500/10 group-hover:text-purple-400"
-              }`}>
-                {file ? <FileText size={32} /> : <Upload size={32} />}
-              </div>
-              <h3 className="font-bold text-white">{file ? file.name : "Upload Resume (PDF)"}</h3>
-              <p className="text-sm text-white/30 mt-1">Drag and drop or click to browse</p>
+      <div className="max-w-3xl mx-auto">
+        {/* ── HEADER ARCHITECTURE ── */}
+        {!loading && (
+          <div className="text-center mb-10 space-y-4">
+            <div className="resume-badge inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white text-[#4F46E5] text-[11px] font-bold uppercase tracking-wider shadow-sm">
+              <Sparkles size={14} /> ATS Optimizer
             </div>
+            {/* Title matching exact screenshot contrast */}
+            <h1 className="resume-title text-4xl font-bold tracking-tight">
+              <span className="text-[#1E2532]">Resume</span>
+              <span className="text-[#4F46E5]">Rater</span>
+            </h1>
           </div>
+        )}
 
-          <button
-            type="submit" // <-- Changed to type="submit"
-            disabled={!file}
-            className="w-full h-14 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold flex items-center justify-center gap-2 hover:brightness-110 transition-all active:scale-[0.98] disabled:opacity-50"
+        {/* ── LOGIC FLOW DISPLAY ── */}
+        {result ? (
+          <div className="space-y-6">
+            <ResumeResult result={result} />
+            <button
+              onClick={handleReset}
+              className="flex items-center gap-2 mx-auto text-sm font-semibold text-slate-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 px-5 py-2.5 rounded-xl border border-white/10"
+            >
+              <RefreshCcw size={16} /> Re-upload another resume
+            </button>
+          </div>
+        ) : loading ? (
+          <div className="animate-in fade-in zoom-in duration-500 h-[60vh] flex items-center justify-center">
+            <ScanningLoader />
+          </div>
+        ) : (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleAnalyze();
+            }}
+            className="resume-form space-y-6"
           >
-            Start AI Analysis
-          </button>
-        </form>
-      )}
+            {/* 1. Target Job Input Box (Pure White as per screenshot) */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm space-y-2.5">
+              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+                Target Job Role
+              </label>
+              <input
+                type="text"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="w-full px-4 py-3 text-[14px] rounded-xl border border-slate-200 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#4F46E5]/20 focus:border-[#4F46E5] transition-all text-slate-900 font-medium"
+                placeholder="e.g. Software Developer"
+                required
+              />
+            </div>
+
+            {/* 2. Upload Dropzone Complex (Translucent Grey as per screenshot) */}
+            <div className="relative group">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                accept=".pdf"
+              />
+              <div
+                className={`p-16 rounded-2xl border-2 border-dashed transition-all duration-300 ${
+                  file
+                    ? "border-[#4F46E5] bg-[#4F46E5]/10"
+                    : "border-white/30 bg-white/[0.12] group-hover:border-white/50"
+                } flex flex-col items-center justify-center text-center`}
+              >
+                {/* Upload Icon Box (White Box, Grey Icon) */}
+                <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center mb-5 shadow-sm transition-transform group-hover:scale-105">
+                  {file ? (
+                    <FileText size={24} className="text-[#4F46E5]" />
+                  ) : (
+                    <Upload size={24} className="text-slate-500" />
+                  )}
+                </div>
+
+                <h3 className="font-semibold text-[#1E293B] text-[15px] tracking-tight">
+                  {file ? file.name : "Upload Resume (PDF)"}
+                </h3>
+                <p className="text-[13px] text-slate-400 mt-1.5 font-medium">
+                  Drag and drop or click to browse files
+                </p>
+              </div>
+            </div>
+
+            {/* 3. Action Trigger Button (Dark merged style) */}
+            <button
+              type="submit"
+              disabled={!file}
+              className="w-full py-4 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.99] disabled:cursor-not-allowed
+                bg-white/5 text-slate-500 disabled:opacity-100
+                hover:enabled:bg-[#4F46E5] hover:enabled:text-white"
+            >
+              Start AI Analysis
+            </button>
+          </form>
+        )}
+      </div>
     </div>
   );
 }

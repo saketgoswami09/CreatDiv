@@ -20,7 +20,7 @@ const ResumeRater = lazy(() => import("./pages/ResumeRater"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Pages where Nav should be hidden (they have their own nav)
-const HIDE_NAV_ROUTES = ["/login", "/register"];
+const HIDE_NAV_ROUTES = ["/login", "/register","/resume/analyze","/image/generate"];
 
 function App() {
   const { pathname } = useLocation();
